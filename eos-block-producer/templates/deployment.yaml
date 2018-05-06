@@ -24,7 +24,12 @@ spec:
           configMap:
             name: eos-block-producer
         - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "eos-block-producer.fullname" .) }}
+          {{- else }}
           emptyDir: {}
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

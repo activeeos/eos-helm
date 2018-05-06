@@ -12,6 +12,23 @@ image:
 service:
   type: ClusterIP
 
+persistence:
+  enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  # existingClaim:
+
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+
+  annotations: {}
+  accessMode: ReadWriteOnce
+  size: 8Gi
+
 resources: {}
   # limits:
   #  cpu: 100m
