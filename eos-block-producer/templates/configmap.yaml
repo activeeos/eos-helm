@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eos-block-producer
+data:
+  config.ini: |-
+{{ .Values.config | indent 4 }}

@@ -19,11 +19,17 @@ spec:
         app: {{ template "eos-block-producer.name" . }}
         release: {{ .Release.Name }}
     spec:
+      volumes:
+        - name: config
+          configMap:
+            name: eos-block-producer
+        - name: data
+          emptyDir: {}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args: ["/opt/eosio/bin/nodeos", "-e", "-p", "eosio", "--http-server-address=0.0.0.0:8888", "-d", "/tmp"]
+          args: ["/opt/eosio/bin/nodeos", "--config-dir=/etc/eos-bp", "--data-dir=/var/eos-bp"]
           ports:
             - name: eos-p2p
               containerPort: 9876
@@ -37,6 +43,11 @@ spec:
           readinessProbe:
             tcpSocket:
               port: 9876
+          volumeMounts:
+            - name: config
+              mountPath: /etc/eos-bp
+            - name: data
+              mountPath: /var/eos-bp
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
