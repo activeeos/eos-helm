@@ -51,10 +51,10 @@ config: |
   get-transactions-time-limit = 3
 
   # File to read Genesis State from
-  genesis-json = /opt/eosio/bin/data-dir/genesis.json
+  genesis-json = /var/eos-bp/genesis.json
 
   # override the initial timestamp in the Genesis State file
-  # genesis-timestamp =
+  genesis-timestamp = 2018-04-05T12:00:00.000
 
   # the location of the block log (absolute path or relative to application data dir)
   block-log-dir = "blocks"
