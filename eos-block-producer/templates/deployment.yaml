@@ -23,10 +23,13 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args: ["/opt/eosio/bin/nodeos", "-e", "-p", "eosio"]
+          args: ["/opt/eosio/bin/nodeos", "-e", "-p", "eosio", "--http-server-address=0.0.0.0:8888", "-d", "/tmp"]
           ports:
-            - name: eos-net
+            - name: eos-p2p
               containerPort: 9876
+              protocol: TCP
+            - name: eos-http
+              containerPort: 8888
               protocol: TCP
           livenessProbe:
             tcpSocket:
