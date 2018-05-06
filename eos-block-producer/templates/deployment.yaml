@@ -22,7 +22,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: eos-block-producer
+            name: {{ template "eos-block-producer.fullname" . }}
         - name: data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
