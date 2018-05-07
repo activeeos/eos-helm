@@ -58,6 +58,9 @@ spec:
           volumeMounts:
             - name: caddy-config
               mountPath: /etc/caddy
+            - name: eos-data
+              mountPath: /root/.caddy
+              subPath: caddy
         - name: {{ .Chart.Name }}-nodeos
           image: "{{ .Values.eosImage.repository }}:{{ .Values.eosImage.tag }}"
           imagePullPolicy: {{ .Values.eosImage.pullPolicy }}
@@ -80,6 +83,7 @@ spec:
               mountPath: /etc/eos-bp
             - name: eos-data
               mountPath: /var/eos-bp
+              subPath: eos-data
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
