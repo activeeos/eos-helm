@@ -24,10 +24,13 @@ spec:
         release: {{ .Release.Name }}
     spec:
       volumes:
-        - name: config
+        - name: caddy-config
           configMap:
-            name: {{ template "eos-block-producer.fullname" . }}
-        - name: data
+            name: {{ template "eos-block-producer.fullname" . }}-caddy
+        - name: eos-config
+          configMap:
+            name: {{ template "eos-block-producer.fullname" . }}-nodeos
+        - name: eos-data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "eos-block-producer.fullname" .) }}
@@ -35,9 +38,29 @@ spec:
           emptyDir: {}
           {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: {{ .Chart.Name }}-caddy
+          image: "{{ .Values.caddyImage.repository }}:{{ .Values.caddyImage.tag }}"
+          imagePullPolicy: {{ .Values.caddyImage.pullPolicy }}
+          args: ["--conf", "/etc/caddy/Caddyfile", "--log", "stdout", "--agree=true"]
+          ports:
+            - name: caddy-http
+              containerPort: 80
+              protocol: TCP
+            - name: caddy-https
+              containerPort: 443
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 80
+          readinessProbe:
+            tcpSocket:
+              port: 80
+          volumeMounts:
+            - name: caddy-config
+              mountPath: /etc/caddy
+        - name: {{ .Chart.Name }}-nodeos
+          image: "{{ .Values.eosImage.repository }}:{{ .Values.eosImage.tag }}"
+          imagePullPolicy: {{ .Values.eosImage.pullPolicy }}
           args: ["/opt/eosio/bin/nodeos", "--config-dir=/etc/eos-bp", "--data-dir=/var/eos-bp"]
           ports:
             - name: eos-p2p
@@ -53,9 +76,9 @@ spec:
             tcpSocket:
               port: 9876
           volumeMounts:
-            - name: config
+            - name: eos-config
               mountPath: /etc/eos-bp
-            - name: data
+            - name: eos-data
               mountPath: /var/eos-bp
           resources:
 {{ toYaml .Values.resources | indent 12 }}

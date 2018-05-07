@@ -14,10 +14,14 @@ spec:
       targetPort: 9876
       protocol: TCP
       name: eos-p2p
-    - port: 8888
-      targetPort: 8888
+    - port: 80
+      targetPort: 80
       protocol: TCP
       name: eos-http
+    - port: 443
+      targetPort: 443
+      protocol: TCP
+      name: eos-https
   selector:
     app: {{ template "eos-block-producer.name" . }}
     release: {{ .Release.Name }}

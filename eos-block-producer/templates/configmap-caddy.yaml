@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "eos-block-producer.fullname" . }}-caddy
+data:
+  Caddyfile: |-
+{{ .Values.caddyfile | indent 4 }}

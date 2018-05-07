@@ -2,13 +2,30 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-image:
+eosImage:
   repository: eosio/eos
+  tag: latest
+  pullPolicy: IfNotPresent
+
+caddyImage:
+  repository: abiosoft/caddy
   tag: latest
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
+
+ingress:
+  enabled: false
+  # hosts:
+    # - chart-example.local
+  # annotations:
+  #   kubernetes.io/ingress.class: nginx
+  #   kubernetes.io/tls-acme: "true"
+  # tls:
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
 
 persistence:
   enabled: true
@@ -40,6 +57,16 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+caddyfile: |
+  http://localhost:80
+
+  # For TLS, replace this with your block producer's domain, insert
+  # your email here, and remove "http://localhost:80" from above
+  ## bp.com
+  ## tls user@host.com
+
+  proxy / localhost:8888
 
 config: |
   # Track only transactions whose scopes involve the listed accounts. Default is to track all transactions.
