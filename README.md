@@ -11,8 +11,7 @@ Kubernetes. This chart can be used for both testnet and production
 nodes. See the `values.yaml` file for configuration instructions.
 
 Features:
-* HTTPS with Let's Encrypt
-* Ingress support
-
-TODO:
-* Support custom genesis state
+* Custom config.ini and genesis state support
+* Automatic HTTPS through Let's Encrypt
+* Kubernetes ingress support
+* Persistent volume support
