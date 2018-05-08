@@ -1,6 +1,6 @@
 # eos-helm
 
-Helm charts for the EOS smart contracts platform.
+Kubernetes Helm charts for the EOS smart contracts platform.
 
 ## Charts
 
