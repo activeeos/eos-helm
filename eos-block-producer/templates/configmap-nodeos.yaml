@@ -3,5 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ template "eos-block-producer.fullname" . }}-nodeos
 data:
-  config.ini: |-
+  config.ini: |
 {{ .Values.config | indent 4 }}
+  genesis.json: |
+{{ .Values.genesis | indent 4 }}
