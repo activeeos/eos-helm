@@ -31,7 +31,7 @@ spec:
         - name: nodeos-standby-config
           configMap:
             name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-standby
-        - name: eos-data
+        - name: nodeos-data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "eos-block-producer-with-failover.fullname" .) }}
@@ -44,7 +44,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args: ["/opt/eosio/bin/nodeos-monitor", "--nodeos-args='--data-dir=/var/eos-bp'",
                  "--etcd-endpoints={{ .Values.nodeosMonitorConfig.etcd.endpoint }}",
-                 "--failover-group={{ .Values.nodeosMonitorConfig.etcd.failoverGroup }}",
+                 "--failover-group={{ .Values.nodeosMonitorConfig.failoverGroup }}",
                  "--debug"]
           ports:
             - name: eos-p2p
@@ -64,9 +64,9 @@ spec:
               mountPath: /etc/nodeos-active-configs
             - name: nodeos-standby-config
               mountPath: /etc/nodeos-standby-configs
-            - name: eos-data
+            - name: nodeos-data
               mountPath: /var/eos-bp
-              subPath: eos-data
+              subPath: nodeos-data
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
