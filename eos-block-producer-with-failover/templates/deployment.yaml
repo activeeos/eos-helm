@@ -1,0 +1,83 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "eos-block-producer-with-failover.fullname" . }}
+  labels:
+    app: {{ template "eos-block-producer-with-failover.name" . }}
+    chart: {{ template "eos-block-producer-with-failover.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    activeeos.io/bp: "true"
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  selector:
+    matchLabels:
+      app: {{ template "eos-block-producer-with-failover.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "eos-block-producer-with-failover.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: nodeos-active-config
+          configMap:
+            name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-active
+        - name: nodeos-standby-config
+          configMap:
+            name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-standby
+        - name: eos-data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "eos-block-producer-with-failover.fullname" .) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-nodeos
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["/opt/eosio/bin/nodeos-monitor", "--nodeos-args='--data-dir=/var/eos-bp'",
+                 "--etcd-endpoints={{ .Values.nodeosMonitorConfig.etcd.endpoint }}",
+                 "--failover-group={{ .Values.nodeosMonitorConfig.etcd.failoverGroup }}",
+                 "--debug"]
+          ports:
+            - name: eos-p2p
+              containerPort: 9876
+              protocol: TCP
+            - name: eos-http
+              containerPort: 8888
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 9876
+          readinessProbe:
+            tcpSocket:
+              port: 9876
+          volumeMounts:
+            - name: nodeos-active-config
+              mountPath: /etc/nodeos-active-configs
+            - name: nodeos-standby-config
+              mountPath: /etc/nodeos-standby-configs
+            - name: eos-data
+              mountPath: /var/eos-bp
+              subPath: eos-data
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
