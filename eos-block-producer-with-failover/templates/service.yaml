@@ -18,6 +18,10 @@ spec:
       targetPort: 8888
       protocol: TCP
       name: eos-http
+    - port: 5887
+      targetPort: 5887
+      protocol: TCP
+      name: eos-bnet
   selector:
     app: {{ template "eos-block-producer-with-failover.name" . }}
     release: {{ .Release.Name }}

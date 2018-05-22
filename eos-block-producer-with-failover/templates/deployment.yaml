@@ -42,7 +42,14 @@ spec:
         - name: {{ .Chart.Name }}-nodeos
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args: ["/opt/eosio/bin/nodeos-monitor", "--nodeos-args='--data-dir=/var/eos-bp'",
+          args: ["/opt/eosio/bin/nodeos-monitor", "--nodeos-args", "--data-dir=/var/eos-bp",
+          {{- if .Values.nodeosConfig.replayBlockchain }}
+                 "--nodeos-args", "--replay-blockchain",
+          {{- end }}
+          {{- if .Values.nodeosConfig.resyncBlockchain }}
+                 "--nodeos-args", "--resync-blockchain",
+          {{- end }}
+                 "--log-format=json",
                  "--etcd-endpoints={{ .Values.nodeosMonitorConfig.etcd.endpoint }}",
                  "--failover-group={{ .Values.nodeosMonitorConfig.failoverGroup }}",
                  "--debug"]
@@ -53,7 +60,11 @@ spec:
             - name: eos-http
               containerPort: 8888
               protocol: TCP
+            - name: eos-bnet
+              containerPort: 5887
+              protocol: TCP
           livenessProbe:
+            initialDelaySeconds: 600
             tcpSocket:
               port: 9876
           readinessProbe:

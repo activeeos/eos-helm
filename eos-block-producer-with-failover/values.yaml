@@ -47,6 +47,11 @@ affinity:
   #     podAffinityTerm:
   #       topologyKey: "failure-domain.beta.kubernetes.io/zone"
 
+
+nodeosConfig:
+  resyncBlockchain: false
+  replayBlockchain: false
+
 nodeosMonitorConfig:
   failoverGroup: 'eos-bp'
   etcd:
