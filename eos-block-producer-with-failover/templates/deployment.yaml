@@ -7,7 +7,6 @@ metadata:
     chart: {{ template "eos-block-producer-with-failover.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-    activeeos.io/bp: "true"
 spec:
   replicas: 1
   strategy:
@@ -23,6 +22,7 @@ spec:
       labels:
         app: {{ template "eos-block-producer-with-failover.name" . }}
         release: {{ .Release.Name }}
+        failoverGroup: "{{ .Values.nodeosMonitorConfig.failoverGroup }}"
     spec:
       volumes:
         - name: nodeos-active-config
@@ -63,13 +63,17 @@ spec:
             - name: eos-bnet
               containerPort: 5887
               protocol: TCP
+            - name: eos-active
+              containerPort: 3000
+              protocol: TCP
           livenessProbe:
             initialDelaySeconds: 600
             tcpSocket:
               port: 9876
           readinessProbe:
-            tcpSocket:
-              port: 9876
+            httpGet:
+              path: /
+              port: 3000
           volumeMounts:
             - name: nodeos-active-config
               mountPath: /etc/nodeos-active-configs
