@@ -5,5 +5,3 @@ metadata:
 data:
   config.ini: |
 {{ .Values.standbyConfig | indent 4 }}
-  genesis.json: |
-{{ .Values.genesis | indent 4 }}

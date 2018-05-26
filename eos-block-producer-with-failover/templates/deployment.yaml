@@ -25,12 +25,15 @@ spec:
         failoverGroup: "{{ .Values.nodeosMonitorConfig.failoverGroup }}"
     spec:
       volumes:
-        - name: nodeos-active-config
+        - name: nodeos-active-configs
           configMap:
             name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-active
-        - name: nodeos-standby-config
+        - name: nodeos-standby-configs
           configMap:
             name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-standby
+        - name: nodeos-genesis-configs
+          configMap:
+            name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-genesis
         - name: nodeos-data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
@@ -43,11 +46,12 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args: ["/opt/eosio/bin/nodeos-monitor", "--nodeos-args", "--data-dir=/var/eos-bp",
+                 "--nodeos-args", "--genesis-json=/etc/nodeos-genesis-configs/genesis.json",
           {{- if .Values.nodeosConfig.replayBlockchain }}
                  "--nodeos-args", "--replay-blockchain",
           {{- end }}
-          {{- if .Values.nodeosConfig.resyncBlockchain }}
-                 "--nodeos-args", "--resync-blockchain",
+          {{- if .Values.nodeosConfig.deleteAllBlocks }}
+                 "--nodeos-args", "--delete-all-blocks",
           {{- end }}
                  "--log-format=json",
                  "--etcd-endpoints={{ .Values.nodeosMonitorConfig.etcd.endpoint }}",
@@ -75,10 +79,12 @@ spec:
               path: /
               port: 3000
           volumeMounts:
-            - name: nodeos-active-config
+            - name: nodeos-active-configs
               mountPath: /etc/nodeos-active-configs
-            - name: nodeos-standby-config
+            - name: nodeos-standby-configs
               mountPath: /etc/nodeos-standby-configs
+            - name: nodeos-genesis-configs
+              mountPath: /etc/nodeos-genesis-configs
             - name: nodeos-data
               mountPath: /var/eos-bp
               subPath: nodeos-data

@@ -49,7 +49,7 @@ affinity:
 
 
 nodeosConfig:
-  resyncBlockchain: false
+  deleteAllBlocks: false
   replayBlockchain: false
 
 nodeosMonitorConfig:
