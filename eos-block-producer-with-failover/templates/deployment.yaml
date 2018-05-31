@@ -71,13 +71,13 @@ spec:
               containerPort: 3000
               protocol: TCP
           livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 3000
+          readinessProbe:
             initialDelaySeconds: 600
             tcpSocket:
               port: 9876
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 3000
           volumeMounts:
             - name: nodeos-active-configs
               mountPath: /etc/nodeos-active-configs
