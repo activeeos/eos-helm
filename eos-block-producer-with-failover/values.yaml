@@ -56,7 +56,6 @@ nodeosMonitorConfig:
   failoverGroup: 'eos-bp'
   etcd:
     endpoint: 'http://127.0.0.1:2379'
-    # TODO: add TLS configuration
 
 # The initial genesis state.
 genesis: |

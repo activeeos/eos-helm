@@ -73,8 +73,9 @@ spec:
               containerPort: 8888
               protocol: TCP
           livenessProbe:
-            tcpSocket:
-              port: 9876
+            httpGet:
+              path: /metrics
+              port: 3000
           readinessProbe:
             tcpSocket:
               port: 9876
