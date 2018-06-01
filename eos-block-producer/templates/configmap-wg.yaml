@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "eos-block-producer.fullname" . }}-wg
+data:
+  wg0.conf: |
+{{ .Values.wireguard.interfaceConfig | indent 4 }}

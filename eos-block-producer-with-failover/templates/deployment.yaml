@@ -71,11 +71,11 @@ spec:
               containerPort: 3000
               protocol: TCP
           livenessProbe:
+            initialDelaySeconds: 600
             httpGet:
               path: /metrics
               port: 3000
           readinessProbe:
-            initialDelaySeconds: 600
             tcpSocket:
               port: 9876
           volumeMounts:

@@ -24,6 +24,10 @@ spec:
         release: {{ .Release.Name }}
     spec:
       volumes:
+        - name: host-modules
+          hostPath:
+            path: /lib/modules
+            type: Directory
         - name: caddy-config
           configMap:
             name: {{ template "eos-block-producer.fullname" . }}-caddy
@@ -37,7 +41,30 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        {{- if .Values.wireguard.enabled }}
+        - name: wg-config
+          configMap:
+            name: {{ template "eos-block-producer.fullname" . }}-wg
+        {{ end }}
       containers:
+        {{- if .Values.wireguard.enabled }}
+        - name: {{ .Chart.Name }}-wireguard
+          image: "{{ .Values.wireguardImage.repository }}:{{ .Values.wireguardImage.tag }}"
+          imagePullPolicy: {{ .Values.wireguardImage.pullPolicy }}
+          ports:
+            - name: wg
+              containerPort: {{ .Values.wireguard.port }}
+              protocol: UDP
+          volumeMounts:
+            - name: wg-config
+              mountPath: /etc/wireguard/
+              readOnly: true
+            - name: host-modules
+              mountPath: /lib/modules
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN", "SYS_MODULE"]
+        {{ end }}
         - name: {{ .Chart.Name }}-caddy
           image: "{{ .Values.caddyImage.repository }}:{{ .Values.caddyImage.tag }}"
           imagePullPolicy: {{ .Values.caddyImage.pullPolicy }}
@@ -64,19 +91,16 @@ spec:
         - name: {{ .Chart.Name }}-nodeos
           image: "{{ .Values.eosImage.repository }}:{{ .Values.eosImage.tag }}"
           imagePullPolicy: {{ .Values.eosImage.pullPolicy }}
-          args: ["/opt/eosio/bin/nodeos", "--config-dir=/etc/eos-bp", "--data-dir=/var/eos-bp"]
+          args: ["/opt/eosio/bin/nodeos", "--config-dir=/etc/eos-bp", "--data-dir=/var/eos-bp", "--genesis-json=/etc/eos-bp/genesis.json"]
           ports:
             - name: eos-p2p
               containerPort: 9876
               protocol: TCP
-            - name: eos-http
-              containerPort: 8888
-              protocol: TCP
           livenessProbe:
+            initialDelaySeconds: 600
             tcpSocket:
               port: 9876
           readinessProbe:
-            initialDelaySeconds: 600
             tcpSocket:
               port: 9876
           volumeMounts:

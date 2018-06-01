@@ -10,6 +10,13 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
+    {{- if .Values.wireguard.enabled }}
+    - port: {{ .Values.wireguard.port }}
+      targetPort: {{ .Values.wireguard.port }}
+      protocol: UDP
+      name: eos-wg
+    {{ end }}
+    {{- if not .Values.service.onlyWireguardPorts }}
     - port: 9876
       targetPort: 9876
       protocol: TCP
@@ -22,6 +29,7 @@ spec:
       targetPort: 443
       protocol: TCP
       name: eos-https
+    {{ end }}
   selector:
     app: {{ template "eos-block-producer.name" . }}
     release: {{ .Release.Name }}
