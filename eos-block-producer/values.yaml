@@ -51,7 +51,12 @@ persistence:
 
 wireguard:
   enabled: false
+
+  # This is the UDP port that Wireguard will listen on.
   port: 5555
+
+  # This should be filled out with configuration for a Wireguard
+  # interface.
   interfaceConfig: ""
 
 resources: {}
