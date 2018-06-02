@@ -25,9 +25,24 @@ spec:
         failoverGroup: "{{ .Values.nodeosMonitorConfig.failoverGroup }}"
     spec:
       volumes:
+        - name: nodeos-genesis
+          configMap:
+            name: {{ template "eos-block-producer-with-failover.fullname" . }}-genesis
+        {{- if .Values.activeConfigSecret.enabled }}
+        - name: nodeos-active-configs
+          projected:
+            sources:
+              - secret:
+                  name: {{ .Values.activeConfigSecret.name }}
+                  items:
+                    - key: {{ .Values.activeConfigSecret.key }}
+                      path: {{ .Values.activeConfigSecret.key }}
+                      mode: 0600
+        {{- else }}
         - name: nodeos-active-configs
           configMap:
             name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-active
+        {{- end }}
         - name: nodeos-standby-configs
           configMap:
             name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-standby
@@ -44,7 +59,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args: ["/opt/eosio/bin/nodeos-monitor", "--nodeos-args", "--data-dir=/var/eos-bp",
           {{- if .Values.nodeosConfig.defineGenesis }}
-                 "--nodeos-args", "--genesis-json=/etc/nodeos-active-configs/genesis.json",
+                 "--nodeos-args", "--genesis-json=/etc/nodeos-genesis/genesis.json",
           {{- end }}
           {{- if .Values.nodeosConfig.replayBlockchain }}
                  "--nodeos-args", "--replay-blockchain",
@@ -75,6 +90,8 @@ spec:
             tcpSocket:
               port: 8888
           volumeMounts:
+            - name: nodeos-genesis
+              mountPath: /etc/nodeos-genesis
             - name: nodeos-active-configs
               mountPath: /etc/nodeos-active-configs
             - name: nodeos-standby-configs

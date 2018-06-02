@@ -101,6 +101,12 @@ genesis: |
     "initial_chain_id": "00000000000000000000000000000000003c332053555045524845524f203c33"
   }
 
+# Specify this to load configs from a secret.
+configSecret:
+  enabled: false
+  name: ""
+  key: "config.ini"
+
 config: |
   get-transactions-time-limit = 3
   block-log-dir = "blocks"

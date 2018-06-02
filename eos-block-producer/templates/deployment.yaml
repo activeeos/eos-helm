@@ -31,9 +31,21 @@ spec:
         - name: caddy-config
           configMap:
             name: {{ template "eos-block-producer.fullname" . }}-caddy
+        {{- if .Values.configSecret.enabled }}
+        - name: eos-config
+          projected:
+            sources:
+              - secret:
+                  name: {{ .Values.configSecret.name }}
+                  items:
+                    - key: {{ .Values.configSecret.key }}
+                      path: {{ .Values.configSecret.key }}
+                      mode: 0600
+        {{- else }}
         - name: eos-config
           configMap:
             name: {{ template "eos-block-producer.fullname" . }}-nodeos
+        {{- end }}
         - name: eos-data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:

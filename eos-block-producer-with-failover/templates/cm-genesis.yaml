@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "eos-block-producer-with-failover.fullname" . }}-genesis
+data:
+  genesis.json: |
+{{ .Values.genesis | indent 4 }}

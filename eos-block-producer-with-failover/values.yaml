@@ -89,6 +89,12 @@ genesis: |
     "initial_chain_id": "0000000000000000000000000000000000000000000000000000000000000000"
   }
 
+# Specify this to load active configs from a secret.
+activeConfigSecret:
+  enabled: false
+  name: ""
+  key: "config.ini"
+
 # Configuration for the active block producer.
 activeConfig: |
   get-transactions-time-limit = 3
