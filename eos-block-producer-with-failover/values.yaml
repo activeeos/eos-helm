@@ -49,6 +49,10 @@ affinity:
 
 
 nodeosConfig:
+  # Unfortunately, this has to be defined when the server is first
+  # booted, then dropped.
+  defineGenesis: true
+
   deleteAllBlocks: false
   replayBlockchain: false
 

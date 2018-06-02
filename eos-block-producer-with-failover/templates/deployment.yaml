@@ -43,6 +43,9 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args: ["/opt/eosio/bin/nodeos-monitor", "--nodeos-args", "--data-dir=/var/eos-bp",
+          {{- if .Values.nodeosConfig.defineGenesis }}
+                 "--nodeos-args", "--genesis-json=/etc/nodeos-active-configs/genesis.json",
+          {{- end }}
           {{- if .Values.nodeosConfig.replayBlockchain }}
                  "--nodeos-args", "--replay-blockchain",
           {{- end }}
