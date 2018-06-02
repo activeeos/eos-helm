@@ -31,9 +31,6 @@ spec:
         - name: nodeos-standby-configs
           configMap:
             name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-standby
-        - name: nodeos-genesis-configs
-          configMap:
-            name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-genesis
         - name: nodeos-data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
@@ -46,7 +43,6 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args: ["/opt/eosio/bin/nodeos-monitor", "--nodeos-args", "--data-dir=/var/eos-bp",
-                 "--nodeos-args", "--genesis-json=/etc/nodeos-genesis-configs/genesis.json",
           {{- if .Values.nodeosConfig.replayBlockchain }}
                  "--nodeos-args", "--replay-blockchain",
           {{- end }}
@@ -64,9 +60,6 @@ spec:
             - name: eos-http
               containerPort: 8888
               protocol: TCP
-            - name: eos-bnet
-              containerPort: 5887
-              protocol: TCP
             - name: eos-active
               containerPort: 3000
               protocol: TCP
@@ -77,14 +70,12 @@ spec:
               port: 3000
           readinessProbe:
             tcpSocket:
-              port: 9876
+              port: 8888
           volumeMounts:
             - name: nodeos-active-configs
               mountPath: /etc/nodeos-active-configs
             - name: nodeos-standby-configs
               mountPath: /etc/nodeos-standby-configs
-            - name: nodeos-genesis-configs
-              mountPath: /etc/nodeos-genesis-configs
             - name: nodeos-data
               mountPath: /var/eos-bp
               subPath: nodeos-data

@@ -14,7 +14,7 @@ spec:
       targetPort: 9876
       protocol: TCP
       name: eos-p2p
-    - port: 80
+    - port: 8888
       targetPort: 8888
       protocol: TCP
       name: eos-http
