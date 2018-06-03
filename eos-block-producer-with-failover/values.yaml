@@ -56,6 +56,9 @@ nodeosConfig:
   deleteAllBlocks: false
   replayBlockchain: false
 
+  # This is applied to the pod label "nodeGroup"
+  nodeGroup: "bps"
+
 nodeosMonitorConfig:
   failoverGroup: 'eos-bp'
   etcd:
@@ -91,6 +94,12 @@ genesis: |
 
 # Specify this to load active configs from a secret.
 activeConfigSecret:
+  enabled: false
+  name: ""
+  key: "config.ini"
+
+# Specify this to load standby configs from a secret.
+standbyConfigSecret:
   enabled: false
   name: ""
   key: "config.ini"

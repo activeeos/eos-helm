@@ -17,6 +17,9 @@ wireguardImage:
   tag: latest
   pullPolicy: Always
 
+# This is applied to the pod label "nodeGroup"
+nodeGroup: "validators"
+
 service:
   type: ClusterIP
   onlyWireguardPorts: false

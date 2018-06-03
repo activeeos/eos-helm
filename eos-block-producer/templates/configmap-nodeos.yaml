@@ -7,5 +7,3 @@ data:
   config.ini: |
 {{ .Values.config | indent 4 }}
 {{- end }}
-  genesis.json: |
-{{ .Values.genesis | indent 4 }}

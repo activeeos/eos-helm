@@ -22,6 +22,7 @@ spec:
       labels:
         app: {{ template "eos-block-producer.name" . }}
         release: {{ .Release.Name }}
+        nodeGroup: {{ .Values.nodeGroup }}
     spec:
       volumes:
         - name: host-modules
@@ -46,6 +47,9 @@ spec:
           configMap:
             name: {{ template "eos-block-producer.fullname" . }}-nodeos
         {{- end }}
+        - name: eos-genesis
+          configMap:
+            name: {{ template "eos-block-producer.fullname" . }}-genesis
         - name: eos-data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
@@ -103,7 +107,7 @@ spec:
         - name: {{ .Chart.Name }}-nodeos
           image: "{{ .Values.eosImage.repository }}:{{ .Values.eosImage.tag }}"
           imagePullPolicy: {{ .Values.eosImage.pullPolicy }}
-          args: ["/opt/eosio/bin/nodeos", "--config-dir=/etc/eos-bp", "--data-dir=/var/eos-bp", "--genesis-json=/etc/eos-bp/genesis.json"]
+          args: ["/opt/eosio/bin/nodeos", "--config-dir=/etc/eos-bp", "--data-dir=/var/eos-bp", "--genesis-json=/etc/eos-genesis/genesis.json"]
           ports:
             - name: eos-p2p
               containerPort: 9876
@@ -116,6 +120,8 @@ spec:
             tcpSocket:
               port: 9876
           volumeMounts:
+            - name: eos-genesis
+              mountPath: /etc/eos-genesis
             - name: eos-config
               mountPath: /etc/eos-bp
             - name: eos-data

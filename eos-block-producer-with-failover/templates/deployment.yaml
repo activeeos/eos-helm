@@ -23,6 +23,7 @@ spec:
         app: {{ template "eos-block-producer-with-failover.name" . }}
         release: {{ .Release.Name }}
         failoverGroup: "{{ .Values.nodeosMonitorConfig.failoverGroup }}"
+        nodeGroup: {{ .Values.nodeosConfig.nodeGroup }}
     spec:
       volumes:
         - name: nodeos-genesis
@@ -43,9 +44,21 @@ spec:
           configMap:
             name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-active
         {{- end }}
+        {{- if .Values.standbyConfigSecret.enabled }}
+        - name: nodeos-standby-configs
+          projected:
+            sources:
+              - secret:
+                  name: {{ .Values.standbyConfigSecret.name }}
+                  items:
+                    - key: {{ .Values.standbyConfigSecret.key }}
+                      path: {{ .Values.standbyConfigSecret.key }}
+                      mode: 0600
+        {{- else }}
         - name: nodeos-standby-configs
           configMap:
             name: {{ template "eos-block-producer-with-failover.fullname" . }}-nodeos-standby
+        {{- end }}
         - name: nodeos-data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
@@ -77,9 +90,6 @@ spec:
               protocol: TCP
             - name: eos-http
               containerPort: 8888
-              protocol: TCP
-            - name: eos-active
-              containerPort: 3000
               protocol: TCP
           livenessProbe:
             initialDelaySeconds: 600

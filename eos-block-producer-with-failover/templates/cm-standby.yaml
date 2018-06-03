@@ -1,3 +1,4 @@
+{{ if not .Values.standbyConfigSecret.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,3 +6,4 @@ metadata:
 data:
   config.ini: |
 {{ .Values.standbyConfig | indent 4 }}
+{{ end }}
