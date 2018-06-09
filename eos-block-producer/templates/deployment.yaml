@@ -29,9 +29,11 @@ spec:
           hostPath:
             path: /lib/modules
             type: Directory
+        {{ if .Values.useCaddy }}
         - name: caddy-config
           configMap:
             name: {{ template "eos-block-producer.fullname" . }}-caddy
+        {{ end }}
         {{- if .Values.configSecret.enabled }}
         - name: eos-config
           projected:
@@ -81,6 +83,7 @@ spec:
             capabilities:
               add: ["NET_ADMIN", "SYS_MODULE"]
         {{ end }}
+        {{ if .Values.useCaddy }}
         - name: {{ .Chart.Name }}-caddy
           image: "{{ .Values.caddyImage.repository }}:{{ .Values.caddyImage.tag }}"
           imagePullPolicy: {{ .Values.caddyImage.pullPolicy }}
@@ -104,14 +107,27 @@ spec:
             - name: eos-data
               mountPath: /root/.caddy
               subPath: caddy
+        {{ end }}
         - name: {{ .Chart.Name }}-nodeos
           image: "{{ .Values.eosImage.repository }}:{{ .Values.eosImage.tag }}"
           imagePullPolicy: {{ .Values.eosImage.pullPolicy }}
-          args: ["/opt/eosio/bin/nodeos", "--config-dir=/etc/eos-bp", "--data-dir=/var/eos-bp", "--genesis-json=/etc/eos-genesis/genesis.json"]
+          args: [
+                  "/opt/eosio/bin/nodeos",
+                  "--config-dir=/etc/eos-bp",
+                  "--data-dir=/var/eos-bp",
+                  {{- if .Values.defineGenesis }}
+                  "--genesis-json=/etc/eos-genesis/genesis.json",
+                  {{- end }}
+                ]
           ports:
             - name: eos-p2p
               containerPort: 9876
               protocol: TCP
+          {{ if not .Values.useCaddy }}
+            - name: eos-http
+              containerPort: 8888
+              protocol: TCP
+          {{ end }}
           livenessProbe:
             initialDelaySeconds: 600
             tcpSocket:

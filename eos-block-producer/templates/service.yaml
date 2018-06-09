@@ -22,13 +22,19 @@ spec:
       protocol: TCP
       name: eos-p2p
     - port: 80
+      {{ if .Values.useCaddy }}
       targetPort: 80
+      {{ else }}
+      targetPort: 8888
+      {{ end }}
       protocol: TCP
       name: eos-http
+    {{ if .Values.useCaddy }}
     - port: 443
       targetPort: 443
       protocol: TCP
       name: eos-https
+    {{ end }}
     {{ end }}
   selector:
     app: {{ template "eos-block-producer.name" . }}

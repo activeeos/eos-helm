@@ -76,6 +76,7 @@ tolerations: []
 
 affinity: {}
 
+useCaddy: true
 caddyfile: |
   :80
 
@@ -86,6 +87,7 @@ caddyfile: |
 
   proxy / localhost:8888
 
+defineGenesis: true
 genesis: |
   {
     "initial_key": "EOS55xgWhiYohaHtFTxcPMorB9MzwBfe3JgUuQEujrurmHLHiXmna",
